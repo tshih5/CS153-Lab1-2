@@ -104,7 +104,7 @@ int
 sys_waits(void)
 {
   int *status;
-  argptr(0, (void*)&status, sizeof(&status));
+  argptr(0, (void*)&status, sizeof(status));
   return waits(status);
 }
 
@@ -118,5 +118,4 @@ sys_waitpid(void)
   argptr(1, (void*)&status, sizeof(status));
   argint(2, &options);
   return waitpid(pid, status, options);
-  return 0;  // not reached
 }

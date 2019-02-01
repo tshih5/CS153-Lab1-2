@@ -569,7 +569,7 @@ exits(int status)
         wakeup1(initproc);
     }
   }
-	//add status of procedure
+	//add status of process
 	curproc->status = status;
 	
   // Jump into the scheduler, never to return.
