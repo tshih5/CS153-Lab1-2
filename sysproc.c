@@ -89,7 +89,7 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
-
+//lab1
 int
 sys_exits(void)
 {
@@ -118,4 +118,13 @@ sys_waitpid(void)
   argptr(1, (void*)&status, sizeof(status));
   argint(2, &options);
   return waitpid(pid, status, options);
+}
+//lab2
+int 
+sys_setpriority(void)
+{
+	int priority;
+	argint(0, &priority);
+	setpriority(priority);
+	return 0;
 }

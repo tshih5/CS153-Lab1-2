@@ -23,9 +23,10 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int exits(int) __attribute((noreturn));
+int exits(int) __attribute((noreturn));	//lab1
 int waits(int*);
 int waitpid(int, int*, int);
+int setpriority(int);					//lab2
 
 // ulib.c
 int stat(char*, struct stat*);

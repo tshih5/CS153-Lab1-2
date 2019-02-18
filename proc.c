@@ -88,6 +88,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
+  p->priority_cntr = 10;
 
   release(&ptable.lock);
 
@@ -329,9 +331,10 @@ scheduler(void)
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
-    // Loop over process table looking for process to run.
+    
     acquire(&ptable.lock);
+	
+    // Loop over process table looking for process to run.
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
@@ -532,7 +535,7 @@ procdump(void)
     cprintf("\n");
   }
 }
-
+//lab1
 void
 exits(int status)
 {
@@ -663,5 +666,70 @@ waitpid(int pidd, int *status, int options)
 
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+//lab2
+void
+setpriority(int priority)
+{
+  struct proc *curproc = myproc();
+  if(priority < 0 || priority > 31)
+	return;
+  curproc->priority = priority;
+  return;
+}
+
+void
+pscheduler(void)
+{
+  int maxp = 31;
+  struct proc *p;
+  
+  struct cpu *c = mycpu();
+  c->proc = 0;
+  
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+    
+    acquire(&ptable.lock);
+    //loop through process table and find process with the highest priority
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+		if(p->state != RUNNABLE)
+			continue;
+		if(maxp > p->priority)
+			maxp = p->priority;
+		
+	}
+    // Loop over process table looking for process to run.
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
+	  if(p->priority == maxp)
+	  {
+		// Switch to chosen process.  It is the process's job
+		// to release ptable.lock and then reacquire it
+		// before jumping back to us.
+		c->proc = p;
+		switchuvm(p);
+		p->state = RUNNING;
+
+		swtch(&(c->scheduler), p->context);
+		switchkvm();
+
+		// Process is done running for now.
+		// It should have changed its p->state before coming back.
+		c->proc = 0;
+	}
+	else
+	{
+		p->priority_cntr--;
+		if(p->priority_cntr == 0){
+				p->priority--;
+				p->priority_cntr = 10;
+		}
+	}
+   }
+    release(&ptable.lock);
   }
 }
