@@ -124,6 +124,7 @@ void			exits(int);					//lab1
 int				waits(int*);
 int 			waitpid(int, int*, int);
 void			setpriority(int);			//lab2
+void            pscheduler(void) __attribute__((noreturn));
 
 
 // swtch.S
